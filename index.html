@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Paint</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="controls">
+        <input type="color" id="colorPicker" value="#000000">
+        <div>
+            <button id="decreaseBrush">-</button>
+            <span id="brushSizeIndicator">10</span>
+            <button id="increaseBrush">+</button>
+        </div>
+        <button id="airbrushToggle">Enable Airbrush</button>
+        <button id="squareToggle">Enable Square</button>
+        <button id="clearButton">Clear</button>
+        <button id="saveButton">Save</button>
+    </div>     
+    <canvas id="paintCanvas" width="800" height="600"></canvas>
+    <script src="./script.js"></script>
+</body>
+</html>
