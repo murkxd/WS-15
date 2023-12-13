@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isSquare = false;
     let squareArray = [];
     let startX, startY, currentSquare;
+    let drawingHistory = [];
 
     function updateBrushSizeIndicator() {
         document.getElementById("brushSizeIndicator").textContent = brushSize;
@@ -53,6 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+
+            drawingHistory.push({
+                type: "freehand",
+                data: {
+                    x: e.clientX - canvas.offsetLeft,
+                    y: e.clientY - canvas.offsetTop,
+                },
+            });
         }
     }
 
@@ -70,14 +79,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function drawSquare(e) {
         if (!painting || !isSquare) return;
-    
+
         currentSquare.endX = e.clientX - canvas.offsetLeft;
         currentSquare.endY = e.clientY - canvas.offsetTop;
-    
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-        drawAllSquares();
-    
+
+        for (const item of drawingHistory) {
+            if (item.type === "freehand") {
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = "round";
+                ctx.strokeStyle = document.getElementById("colorPicker").value;
+                ctx.lineTo(item.data.x, item.data.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(item.data.x, item.data.y);
+            } else if (item.type === "square") {
+                ctx.lineWidth = brushSize;
+                ctx.strokeStyle = item.data.color;
+                ctx.strokeRect(
+                    item.data.startX,
+                    item.data.startY,
+                    item.data.endX - item.data.startX,
+                    item.data.endY - item.data.startY
+                );
+            }
+        }
+
         ctx.lineWidth = brushSize;
         ctx.strokeStyle = currentSquare.color;
         ctx.strokeRect(
@@ -86,26 +114,24 @@ document.addEventListener("DOMContentLoaded", function () {
             currentSquare.endX - currentSquare.startX,
             currentSquare.endY - currentSquare.startY
         );
-    }    
+    }
 
     function endSquare() {
         if (!isSquare || !currentSquare) return;
 
+        drawingHistory.push({
+            type: "square",
+            data: {
+                startX: currentSquare.startX,
+                startY: currentSquare.startY,
+                endX: currentSquare.endX,
+                endY: currentSquare.endY,
+                color: currentSquare.color,
+            },
+        });
+
         squareArray.push(currentSquare);
         currentSquare = null;
-    }
-
-    function drawAllSquares() {
-        for (const square of squareArray) {
-            ctx.lineWidth = brushSize;
-            ctx.strokeStyle = square.color;
-            ctx.strokeRect(
-                square.startX,
-                square.startY,
-                square.endX - square.startX,
-                square.endY - square.startY
-            );
-        }
     }
 
     function toggleSquare() {
@@ -156,6 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("clearButton").addEventListener("click", function () {
         squareArray = [];
+        drawingHistory = [];
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
