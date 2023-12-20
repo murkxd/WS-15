@@ -3,13 +3,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const ctx = canvas.getContext("2d");
 
     let painting = false;
-    let brushSize = 10;
+    let brushSize = 2;
     let isAirbrush = false;
     let isSquare = false;
     let squareArray = [];
     let startX, startY, currentSquare;
     let drawingHistory = [];
-
+ 
     function updateBrushSizeIndicator() {
         document.getElementById("brushSizeIndicator").textContent = brushSize;
     }
@@ -46,15 +46,14 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             ctx.globalAlpha = 1;
         } else {
-            ctx.lineWidth = brushSize;
-            ctx.lineCap = "round";
-            ctx.strokeStyle = document.getElementById("colorPicker").value;
-
+            if (drawingHistory.length === 0 || drawingHistory[drawingHistory.length - 1].type !== "freehand") {
+                ctx.beginPath();
+                ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            }
+    
             ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
             ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-
+    
             drawingHistory.push({
                 type: "freehand",
                 data: {
